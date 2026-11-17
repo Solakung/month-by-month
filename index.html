@@ -1894,6 +1894,7 @@ function onlineStart(){
 
 /* ===================== หน้าจอ UI ===================== */
 function render(){
+  { const ae=document.activeElement; if(ae&&ae.tagName==='INPUT'&&app.contains(ae)&&G.screen!=='game') return; }
   document.body.className='s-'+G.screen;
   app.className=(G.screen==='game'||G.screen==='watch')?'hud':'page';
   const f={menu:vMenu,setup:vSetup,online:vOnline,lobby:vLobby,game:vGame,watch:vWatch}[G.screen];
@@ -1926,15 +1927,17 @@ function vHow(){
    +'<button class="btn" data-do="howx">โอเค ไปเล่นกัน</button></div></div>';
 }
 function vSetup(){
+  const bs='style="flex:1;padding:6px 2px;font-size:13px;min-width:0"';
   const rows=G.slots.map((s,i)=>
-    '<div class="row"><div style="font-size:26px">'+(s.bot?s.emoji:HUMANS[i%HUMANS.length])+'</div>'
-    +'<input class="grow" value="'+esc(s.name)+'" data-name="'+i+'" maxlength="14" '+(s.bot?'disabled':'')+'>'
-    +'<button class="btn ghost sm" style="width:auto" data-do="look" data-i="'+i+'">🎨</button>'
-    +'<button class="btn ghost sm" style="width:auto" data-do="role" data-i="'+i+'">'+(s.role?ROLES[s.role].ic:'🎲')+'</button>'
-    +'<button class="btn ghost sm" style="width:auto" data-do="tog" data-i="'+i+'">'+(s.bot?'🤖':'🧑')+'</button>'
-    +'<button class="btn ghost sm" style="width:auto" data-do="del" data-i="'+i+'">✕</button></div>').join('');
+    '<div style="border:2px solid #2b2036;border-radius:12px;padding:8px;background:#fff">'
+    +'<div class="row" style="margin-bottom:6px"><div style="font-size:26px;flex:none">'+(s.bot?s.emoji:HUMANS[i%HUMANS.length])+'</div>'
+    +'<input value="'+esc(s.name)+'" data-name="'+i+'" maxlength="14" placeholder="ชื่อผู้เล่น" autocomplete="off" style="flex:1;min-width:0;width:100%;font-size:16px" '+(s.bot?'disabled':'')+'>'
+    +'<button class="btn ghost sm" style="width:auto;flex:none;padding:6px 10px" data-do="del" data-i="'+i+'">✕</button></div>'
+    +'<div class="row" style="gap:5px"><button class="btn ghost sm" '+bs+' data-do="look" data-i="'+i+'">🎨 แต่งตัว</button>'
+    +'<button class="btn ghost sm" '+bs+' data-do="role" data-i="'+i+'">'+(s.role?ROLES[s.role].ic+' '+ROLES[s.role].n:'🎲 สุ่มอาชีพ')+'</button>'
+    +'<button class="btn ghost sm" '+bs+' data-do="tog" data-i="'+i+'">'+(s.bot?'🤖 บอท':'🧑 คน')+'</button></div></div>').join('');
   return '<div class="row" style="margin-bottom:10px"><button class="btn ghost sm" style="width:auto" data-do="menu">← กลับ</button><b class="grow" style="text-align:center;color:#fff;text-shadow:2px 2px 0 #2b2036">ตั้งค่าเกม</b></div>'
-   +'<div class="card stack"><div class="sub-title">ผู้เล่น ('+G.slots.length+'/6) · 🎨 แต่งตัวละคร · กดไอคอนอาชีพเพื่อเลือก (🎲=สุ่ม ไม่ซ้ำกัน) · 🧑/🤖 สลับคน/บอท</div>'+rows
+   +'<div class="card stack"><div class="sub-title">ผู้เล่น ('+G.slots.length+'/6)</div>'+rows
    +(G.slots.length<6?'<button class="btn ghost sm" data-do="add">+ เพิ่มผู้เล่น</button>':'')+'</div>'
    +'<div class="card"><div class="sub-title">ความยาก</div><div class="grid2" style="grid-template-columns:repeat(3,1fr)">'+Object.keys(DIFFS).map(k=>'<button class="btn sm '+(G.diff===k?'sun':'ghost')+'" data-do="diff" data-r="'+k+'">'+DIFFS[k].n+'<small>'+(k==='easy'?'เงินเยอะ เดินไว':k==='normal'?'สมดุล':'ค่าเช่าโหด')+'</small></button>').join('')+'</div></div>'
    +'<div class="card"><div class="sub-title">ความยาวเกม</div><select data-months>'
@@ -2277,6 +2280,7 @@ document.addEventListener('click',e=>{
     case 'ostart': onlineStart(); break;
   }
 });
+document.addEventListener('click',e=>{ const ae=document.activeElement; if(ae&&ae.tagName==='INPUT'&&e.target!==ae) ae.blur(); },true);
 document.addEventListener('input',e=>{ const n=e.target.dataset.name; if(n!==undefined && G.slots[n]) G.slots[n].name=e.target.value; });
 document.addEventListener('change',e=>{
   if(e.target.matches('[data-months]')) G.months=+e.target.value;
